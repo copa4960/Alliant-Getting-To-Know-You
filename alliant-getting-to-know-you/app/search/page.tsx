@@ -3,6 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent } from "@/components/ui/card"
 import alliantLogo from '../../public/alliant-logo.png' 
+import GoogleApiSearch from '@/components/Google_api_search'
+import { totalmem } from 'os'
 
 export default function SearchPage({ searchParams }: { searchParams: { q: string } }) {
   const query = searchParams.q
@@ -31,25 +33,11 @@ export default function SearchPage({ searchParams }: { searchParams: { q: string
               Search Results
             </h1>
             <Suspense fallback={<p>Loading search results...</p>}>
-              <SearchResults query={query} />
+              <GoogleApiSearch query={query} />
             </Suspense>
           </CardContent>
         </Card>
       </main>
-    </div>
-  )
-}
-
-function SearchResults({ query }: { query: string }) {
-  // In a real application, you would fetch search results here
-  return (
-    <div>
-      <p className="text-center text-lg">
-        Showing results for: <strong>{query}</strong>
-      </p>
-      <p className="mt-4 text-center">
-        (This is a placeholder. Implement actual search functionality here.)
-      </p>
     </div>
   )
 }
