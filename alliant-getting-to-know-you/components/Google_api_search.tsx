@@ -27,9 +27,6 @@ export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
 
     return (
       <div>
-        <p className="text-center text-lg">
-          Showing results for: <strong>{query}</strong>
-        </p>
         <p className="text-center text-md mt-2">Top social media links found:</p>
         <ul className="mt-4">
           {links.map((link, index) => (

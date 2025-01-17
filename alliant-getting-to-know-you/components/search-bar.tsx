@@ -8,12 +8,20 @@ import { Input } from "@/components/ui/input"
 export default function SearchBar() {
   const [isFocused, setIsFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [companyQuery, setCompanyQuery] = useState("")
   const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+    if (searchQuery.trim() || companyQuery.trim()) {
+      const queryParams = new URLSearchParams();
+      if (searchQuery.trim()) {
+        queryParams.append('name', searchQuery);
+      }
+      if (companyQuery.trim()) {
+        queryParams.append('company', companyQuery);
+      }
+      router.push(`/search?${queryParams.toString()}`);
     }
   }
 
@@ -32,13 +40,21 @@ export default function SearchBar() {
         <Input
           type="search"
           placeholder="Search by name, John Doe, etc..."
-          className="border-0 bg-transparent pl-2 focus-visible:ring-0"
+          className="border-0 bg-transparent pl-2 ml-2 focus-visible:ring-0"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
+        <Input
+          type="text"
+          placeholder="Company (optional)"
+          className="border-0 bg-transparent pl-2 focus-visible:ring-0 ml-2"
+          value={companyQuery}
+          onChange={(e) => setCompanyQuery(e.target.value)}
+        />
       </div>
+      <button type="submit" className="hidden" />
     </form>
   )
 }

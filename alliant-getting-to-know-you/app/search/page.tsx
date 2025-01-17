@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { Card, CardContent } from "@/components/ui/card"
 import alliantLogo from '../../public/alliant-logo.png' 
 import GoogleApiSearch from '@/components/Google_api_search'
-import { totalmem } from 'os'
 
-export default function SearchPage({ searchParams }: { searchParams: { q: string } }) {
-  const query = searchParams.q
+export default function SearchPage({ searchParams }: { searchParams: { name: string; company: string } }) {
+  const nameQuery = searchParams.name || ""; // Get the name query
+  const companyQuery = searchParams.company || ""; // Get the company query
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -32,9 +32,20 @@ export default function SearchPage({ searchParams }: { searchParams: { q: string
             <h1 className="mb-8 text-center text-3xl font-semibold text-slate-800">
               Search Results
             </h1>
+            <p className="text-center text-lg">
+              Showing results for: <strong>{nameQuery}</strong>
+              {companyQuery && companyQuery !== "" && (
+                <> at <strong>{companyQuery}</strong></>
+              )}
+            </p>
             <Suspense fallback={<p>Loading search results...</p>}>
-              <GoogleApiSearch query={query} />
+              <GoogleApiSearch query={nameQuery} />
             </Suspense>
+            <div className="mt-4 text-center">
+              <Link href="/" className="inline-block px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+                Back to Search
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </main>
