@@ -1,46 +1,57 @@
-import { exec } from "child_process";
-import path from "path";
-import { promisify } from "util";
+import axios from "axios";
 
-const execAsync = promisify(exec);
+const API_KEY = "AIzaSyAbu6ulNt5xaaetWpzbVX0b90XD5UjtZxA";
+const CX = "30f34c469c1dd45ca";
 
 interface GoogleApiSearchProps {
   query: string; // Accept query as a prop
 }
 
+interface GAPISearchParams {
+  cx: string;
+  key: string;
+  q: string;
+}
+
+interface GAPIImgSearchParams {
+  cx: string;
+  key: string;
+  q: string;
+  searchType: string;
+}
+
 export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
-  try {
-    const googleApiPath = "../google api file.py";
+  console.log(`Got q: ${query}`);
+  let links: string[] = [];
+  const config: GAPISearchParams = {
+    cx: CX,
+    key: API_KEY,
+    q: query
+  };
 
-    // Execute the Google API Python script with the search query
-    const { stdout, stderr } = await execAsync(
-      `python "${googleApiPath}" "${query}"`
-    );
+  await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
+    params: config
+  })
+  .then(res => {
+    res.data.items.forEach((item: any) => {
+      links.push(item.link);
+    });
+  });
 
-    if (stderr) {
-      console.error("Google API Script Error:", stderr);
-      return <p>Error executing Google API script</p>;
-    }
+  console.log(`Links: ${links}`);
 
-    // Parse the output from the Python script
-    const links = stdout.split('\n').filter(link => link); // Split by new line and filter out empty lines
-
-    return (
-      <div>
-        <p className="text-center text-md mt-2">Top social media links found:</p>
-        <ul className="mt-4">
-          {links.map((link, index) => (
-            <li key={index} className="text-center">
-              <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                {link}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  } catch (error) {
-    console.error("Error during Google API search:", error);
-    return <p>Error during search</p>;
-  }
+  return (
+    <div>
+      <p className="text-center text-md mt-2">Top social media links found:</p>
+      <ul className="mt-4">
+        {links.map((link, index) => (
+          <li key={index} className="text-center">
+            <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+              {link}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
