@@ -55,7 +55,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     search_query = sys.argv[1]  # Get the search query from command line arguments
-    total_results = 2
+    total_results = 3
     
     links = main(search_query, total_results)
     for index in range(len(links)):

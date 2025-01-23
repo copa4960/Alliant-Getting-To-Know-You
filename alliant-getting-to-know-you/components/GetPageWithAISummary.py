@@ -1,15 +1,17 @@
+import os
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from urllib import robotparser
 import google.generativeai as genai
+import sys
 
-service = Service("./geckodriver")
+service = Service("./components/geckodriver")
 driver = webdriver.Firefox(service=service)
 
+search_query = sys.argv[1] 
+url = sys.argv[2]
 
-
-url = "https://alliantnational.com/about/our-team/david-sinclair/"
 driver.get(url)
 
 dotCom = url.split(".com")
@@ -30,8 +32,7 @@ else:
     paragraphs = driver.find_elements(By.TAG_NAME, "p")
     extracted_text = "\n".join([paragraph.text for paragraph in paragraphs])
     # Pass the extracted text to Gemini AI for summarization
-    response = model.generate_content(f"Summarize this content: {extracted_text}")
-    print("Summary:")
+    response = model.generate_content(f"Summarize this content looking for {search_query} and some interests and hobbies they could have: {extracted_text}")
     print(response.text)
 
 driver.quit()

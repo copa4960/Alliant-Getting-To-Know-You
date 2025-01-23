@@ -2,12 +2,15 @@ import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent } from "@/components/ui/card"
-import alliantLogo from '../../public/alliant-logo.png' 
+import alliantLogo from '../../public/alliant-logo.png'
 import GoogleApiSearch from '@/components/Google_api_search'
+import GoogleCompanySearch from '@/components/google_company_search'
 
-export default function SearchPage({ searchParams }: { searchParams: { name: string; company: string } }) {
-  const nameQuery = searchParams.name || ""; // Get the name query
-  const companyQuery = searchParams.company || ""; // Get the company query
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string }> }) {
+  const { name, company } = await searchParams; // Await the searchParams
+
+  const nameQuery = name || ""; // Get the name query
+  const companyQuery = company || ""; // Get the company query
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -38,9 +41,14 @@ export default function SearchPage({ searchParams }: { searchParams: { name: str
                 <> at <strong>{companyQuery}</strong></>
               )}
             </p>
-            <Suspense fallback={<p>Loading search results...</p>}>
+            <Suspense fallback={<p>Loading Social Media results...</p>}>
               <GoogleApiSearch query={nameQuery} />
             </Suspense>
+            {companyQuery && companyQuery !== "" && (
+              <Suspense fallback={<div>Loading AI Summary results... </div>}>
+                <GoogleCompanySearch name={nameQuery} company={companyQuery} />
+              </Suspense>
+            )}
             <div className="mt-4 text-center">
               <Link href="/" className="inline-block px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
                 Back to Search
