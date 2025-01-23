@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Card, CardContent } from "@/components/ui/card"
 import alliantLogo from '../../public/alliant-logo.png' 
 import GoogleApiSearch from '@/components/Google_api_search'
+import GoogleImageSearch from '@/components/GoogleImageSearch'
 
 export default function SearchPage({ searchParams }: { searchParams: { name: string; company: string } }) {
   const nameQuery = searchParams.name || ""; // Get the name query
@@ -39,6 +40,7 @@ export default function SearchPage({ searchParams }: { searchParams: { name: str
               )}
             </p>
             <Suspense fallback={<p>Loading search results...</p>}>
+              <GoogleImageSearch query={nameQuery} />
               <GoogleApiSearch query={nameQuery} />
             </Suspense>
             <div className="mt-4 text-center">
