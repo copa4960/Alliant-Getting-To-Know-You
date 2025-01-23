@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 import requests
 import pandas as pd
@@ -55,7 +57,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     search_query = sys.argv[1]  # Get the search query from command line arguments
-    total_results = 3
+    total_results = 2
     
     links = main(search_query, total_results)
     for index in range(len(links)):

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import alliantLogo from '../../public/alliant-logo.png'
 import GoogleApiSearch from '@/components/Google_api_search'
 import GoogleCompanySearch from '@/components/google_company_search'
+import GoogleImageSearch from '@/components/GoogleImageSearch'
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string }> }) {
   const { name, company } = await searchParams; // Await the searchParams
@@ -42,6 +43,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               )}
             </p>
             <Suspense fallback={<p>Loading Social Media results...</p>}>
+              <GoogleImageSearch query={nameQuery} />
               <GoogleApiSearch query={nameQuery} />
             </Suspense>
             {companyQuery && companyQuery !== "" && (
