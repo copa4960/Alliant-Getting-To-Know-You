@@ -1,59 +1,128 @@
-import { exec } from "child_process";
-import path from "path";
-import { promisify } from "util";
+import axios from "axios";
+import puppeteer from "puppeteer";
+import fetch from "node-fetch";
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
+const CX = "c1844a91c0f9849e1";
+
 interface GoogleCompanySearchProps {
-    name: string;
-    company: string; // Ensure both props are defined
+    query: string;
 }
 
-const GoogleCompanySearch: React.FC<GoogleCompanySearchProps> = async ({ name, company }) => {
+interface GAPISearchParams {
+    cx: string;
+    key: string;
+    q: string;
+}
+
+// Check robots.txt to see if scraping is allowed
+async function checkRobots(url: string): Promise<boolean> {
+    const baseUrl = url.split(".com")[0] + ".com"; // Get the base domain
+    const robotsUrl = `${baseUrl}/robots.txt`;
+
     try {
-        const googleApiPath = "../google company file.py";
-        const aiSummary = "./components/GetPageWithAISummary.py"
-
-        // Execute the Google API Python script with the search query
-        const { stdout: companyLink, stderr: linkError } = await execAsync(
-            `python "${googleApiPath}" "${name}" "${company}"`
-        );
-
-        if (linkError) {
-            console.error("Google API Script Error:", linkError);
-            return <p>Error executing company website search</p>;
+        const response = await fetch(robotsUrl);
+        if (!response.ok) {
+            console.log(`No robots.txt found at ${robotsUrl}`);
+            return true; // Default to allow if no robots.txt is present
         }
 
-        const { stdout: aiResults, stderr: aiError } = await execAsync(
-            `python "${aiSummary}" "${name}" "${companyLink}"`,
-        );
-
-        if (aiError) {
-            console.error("Google API Script Error:", aiError);
-            return <p>Error executing ai summary</p>;
-        }
-
-        return (
-            <div>
-                <p className="text-center text-md mt-2"> Company website found: </p>
-                <a
-                    href={companyLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500"
-                >
-                    {companyLink}
-                </a>
-                <p className="text-center text-md mt-2"> AI Summary: </p>
-                <a>
-                    {aiResults}
-                </a>
-            </div>
-        );
+        const robotsText = await response.text();
+        return robotsText.includes("User-agent: *"); // Basic check for Disallow rule
     } catch (error) {
-        console.error("Error during Google API search:", error);
-        return <p>Error during search</p>;
+        console.error("Error fetching robots.txt:", error);
+        return true; // Default to allow if there's an error
     }
-};
+}
 
-export default GoogleCompanySearch;
+export default async function GoogleCompanySearch({ query }: GoogleCompanySearchProps) {
+    console.log(`Got q: ${query}`);
+    let links: string[] = [];
+    const name = query.match(/^[^\s]+/);
+    const aiSummary = "../GetPageWithAISummary.py";
+
+    const config: GAPISearchParams = {
+        cx: CX,
+        key: API_KEY,
+        q: `${query} -site:instagram.com -site:tiktok.com -site:linkedin.com -site:x.com -site:instagram.com`
+    };
+
+    // Fetch company page links from Google Custom Search
+    await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
+        params: config
+    })
+        .then(res => {
+            res.data.items.forEach((item: any) => {
+                links.push(item.link);
+            });
+        });
+
+    // Start Puppeteer to extract content from the links
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    let aiText: string[] = [];
+
+    for (const link of links) {
+        // Check robots.txt first
+        const canScrape = await checkRobots(link);
+        if (!canScrape) {
+            console.log(`Scraping not allowed for ${link}`);
+            aiText.push("No Content Found")
+            continue; // Skip this link if scraping is not allowed
+        }
+
+        try {
+            await page.goto(link, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            const paragraphs = await page.$$eval('p', (paragraphs: Element[]) =>
+                paragraphs.map(p => p.textContent).join("\n")
+            );
+
+            const sanitizedParagraphs = paragraphs
+                .replace(/[\r\n]+/g, ' ')  // Replace newlines with spaces
+                .replace(/(["'\\$`!])/g, '\\$1') // Escape special characters
+                .replace(/^\ufeff/, '') // Remove BOM character if it exists
+                .replace(/[^\x00-\x7F]/g, '');  // Remove non-ASCII characters (if needed)
+
+            const { stdout: aiResults, stderr: aiError } = await execAsync(
+                `python ${aiSummary} "${name}" "${sanitizedParagraphs}"`,
+            );
+
+            if (aiError) {
+                console.error("Google API Script Error:", aiError);
+                return <p>Error executing ai summary</p>;
+            }
+
+            aiText.push(aiResults)
+
+        } catch (error) {
+            console.error(`Error extracting content from ${link}:`, error);
+        }
+    }
+
+    await browser.close();
+
+    return (
+        <div>
+            <p className="text-center text-md mt-2">Company Websites and AI Summaries:</p>
+            <ul className="mt-4">
+                {links.map((link, index) => (
+                    <li key={index} className="text-center mb-8">
+                        <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                            {link}
+                        </a>
+                        {aiText[index] && (
+                            <p className="mt-2 text-sm text-gray-700">
+                                {aiText[index]}
+                            </p>
+                        )}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_KEY = "AIzaSyAbu6ulNt5xaaetWpzbVX0b90XD5UjtZxA";
-const CX = "30f34c469c1dd45ca";
+const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
+const CX = "c1844a91c0f9849e1";
 
 interface GoogleImageSearchProps {
   query: string; // Accept query as a prop

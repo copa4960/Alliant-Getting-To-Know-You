@@ -12,6 +12,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   const nameQuery = name || ""; // Get the name query
   const companyQuery = company || ""; // Get the company query
+  const combineQuery = nameQuery + ' ' + companyQuery;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -42,13 +43,20 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 <> at <strong>{companyQuery}</strong></>
               )}
             </p>
-            <Suspense fallback={<p>Loading Social Media results...</p>}>
-              <GoogleImageSearch query={nameQuery} />
-              <GoogleApiSearch query={nameQuery} />
-            </Suspense>
+            {companyQuery && companyQuery !== "" ? (
+              <Suspense fallback={<p>Loading Social Media results...</p>}>
+                <GoogleImageSearch query={combineQuery} />
+                <GoogleApiSearch query={combineQuery} />
+              </Suspense>
+            ) : (
+              <Suspense fallback={<p>Loading Social Media results...</p>}>
+                <GoogleImageSearch query={nameQuery} />
+                <GoogleApiSearch query={nameQuery} />
+              </Suspense>
+            )}
             {companyQuery && companyQuery !== "" && (
               <Suspense fallback={<div>Loading AI Summary results... </div>}>
-                <GoogleCompanySearch name={nameQuery} company={companyQuery} />
+                <GoogleCompanySearch query={combineQuery} />
               </Suspense>
             )}
             <div className="mt-4 text-center">

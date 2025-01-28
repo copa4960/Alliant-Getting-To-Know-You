@@ -12,9 +12,9 @@ def search(query, image=False):
     params={
         "cx": CX,
         "key": API_KEY,
-        "exactTerms": query,
+        "q": query,
         # "searchType": "image",            # show only images
-        # "siteSearch": "instagram.com",    # filter websites
+        # "siteSearch":  "instagram.com",    # filter websites
         # "siteSearchFilter": "i"
     })
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_KEY = "AIzaSyAbu6ulNt5xaaetWpzbVX0b90XD5UjtZxA";
-const CX = "30f34c469c1dd45ca";
+const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
+const CX = "c1844a91c0f9849e1";
 
 interface GoogleApiSearchProps {
   query: string; // Accept query as a prop
@@ -13,20 +13,13 @@ interface GAPISearchParams {
   q: string;
 }
 
-interface GAPIImgSearchParams {
-  cx: string;
-  key: string;
-  q: string;
-  searchType: string;
-}
-
 export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
   console.log(`Got q: ${query}`);
   let links: string[] = [];
   const config: GAPISearchParams = {
     cx: CX,
     key: API_KEY,
-    q: query
+    q: `${query} (site:instagram.com OR site:tiktok.com OR site:linkedin.com OR site:x.com OR site:instagram.com)`
   };
 
   await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
@@ -37,8 +30,6 @@ export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
       links.push(item.link);
     });
   });
-
-  console.log(`Links: ${links}`);
 
   return (
     <div>
