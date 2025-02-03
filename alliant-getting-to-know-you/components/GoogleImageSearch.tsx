@@ -35,14 +35,10 @@ export default async function GoogleImageSearch({ query }: GoogleImageSearchProp
 
   return (
     <div>
-      <p className="text-center text-md mt-2">Top social media links found:</p>
-      <ul className="mt-4">
-        {links.map((link, index) => (
-          <li key={index} className="text-center">
-            <img src={link} />
-          </li>
-        ))}
-      </ul>
+      <p className="text-center text-md mt-2">Top images:</p>
+      {links.slice(0, 3).map((link, index) => (
+        <img key={index} src={link} width="200" className="rounded" />
+      ))}
     </div>
   );
 }
