@@ -12,7 +12,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   const nameQuery = name || ""; // Get the name query
   const companyQuery = company || ""; // Get the company query
-  const combineQuery = nameQuery + ' ' + companyQuery;
+  const combineQuery = companyQuery + ' ' + nameQuery;
 
   return (
     <div className="min-h-screen bg-slate-50">
