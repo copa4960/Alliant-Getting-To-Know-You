@@ -1,3 +1,4 @@
+import { getValue, setValue } from "@/lib/redis";
 import axios from "axios";
 
 const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
@@ -15,21 +16,32 @@ interface GAPISearchParams {
 
 export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
   console.log(`Got q: ${query}`);
-  let links: string[] = [];
-  const config: GAPISearchParams = {
-    cx: CX,
-    key: API_KEY,
-    q: `${query} (site:instagram.com OR site:tiktok.com OR site:linkedin.com OR site:x.com OR site:instagram.com)`
-  };
 
-  await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
-    params: config
-  })
-  .then(res => {
-    res.data.items.forEach((item: any) => {
-      links.push(item.link);
+  let value = await getValue(query);
+  let links: string[] = [];
+  if (value == null) {
+    console.log("GoogleSearch: No value in cache. Searching...");
+    const config: GAPISearchParams = {
+      cx: CX,
+      key: API_KEY,
+      q: `${query} (site:instagram.com OR site:tiktok.com OR site:linkedin.com OR site:x.com OR site:instagram.com)`
+    };
+
+    await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
+      params: config
+    })
+    .then(res => {
+      res.data.items.forEach((item: any) => {
+        links.push(item.link);
+      });
     });
-  });
+
+    let repr: string = links.join('|');
+    setValue(query, repr);
+  } else {
+    console.log("GoogleSearch: Using cache...");
+    links = value.split('|');
+  }
 
   return (
     <div>

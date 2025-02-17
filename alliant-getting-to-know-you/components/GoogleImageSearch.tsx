@@ -1,3 +1,4 @@
+import { getValue, setValue } from "@/lib/redis";
 import axios from "axios";
 
 const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
@@ -16,22 +17,33 @@ interface GAPIImgSearchParams {
 
 export default async function GoogleImageSearch({ query }: GoogleImageSearchProps) {
   console.log(`Got q: ${query}`);
-  let links: string[] = [];
-  const config: GAPIImgSearchParams = {
-    cx: CX,
-    key: API_KEY,
-    q: query,
-    searchType: "image"
-  };
 
-  await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
-    params: config
-  })
-  .then(res => {
-    res.data.items.forEach((item: any) => {
-      links.push(item.image.thumbnailLink);
+  let value = await getValue(query);
+  let links: string[] = [];
+  if (value == null) {
+    console.log("ImageSearch: No value in cache. Searching...");
+    const config: GAPIImgSearchParams = {
+      cx: CX,
+      key: API_KEY,
+      q: query,
+      searchType: "image"
+    };
+  
+    await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
+      params: config
+    })
+    .then(res => {
+      res.data.items.forEach((item: any) => {
+        links.push(item.image.thumbnailLink);
+      });
     });
-  });
+
+    let repr: string = links.join('|');
+    setValue(query, repr);
+  } else {
+    console.log("ImageSearch: Using cache...");
+    links = value.split('|');
+  }
 
   return (
     <div>
