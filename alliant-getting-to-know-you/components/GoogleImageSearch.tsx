@@ -18,7 +18,7 @@ interface GAPIImgSearchParams {
 export default async function GoogleImageSearch({ query }: GoogleImageSearchProps) {
   console.log(`Got q: ${query}`);
 
-  let value = await getValue(query);
+  let value = await getValue(`image:${query}`);
   let links: string[] = [];
   if (value == null) {
     console.log("ImageSearch: No value in cache. Searching...");
@@ -39,7 +39,7 @@ export default async function GoogleImageSearch({ query }: GoogleImageSearchProp
     });
 
     let repr: string = links.join('|');
-    setValue(query, repr);
+    setValue(`image:${query}`, repr);
   } else {
     console.log("ImageSearch: Using cache...");
     links = value.split('|');
