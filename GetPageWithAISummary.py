@@ -18,7 +18,7 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 def get_ai_summary(name, extracted_text):
     try:
         response = model.generate_content(
-            f"Summarize this content looking for {name} and some interests and hobbies they could have: {extracted_text}. if it does not seem relevant to {name} or if no text was provided, only say the quote: 'this is not important'"
+            f"Summarize this content looking for {name} and some interests and hobbies they could have: {extracted_text}. If no text was provided, just say 'Scraping not allowed or unavailible'."
         )
         return response.text
     except Exception as e:

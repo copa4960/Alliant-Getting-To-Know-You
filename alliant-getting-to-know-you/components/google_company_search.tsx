@@ -72,7 +72,7 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
         const canScrape = await checkRobots(link);
         if (!canScrape) {
             console.log(`Scraping not allowed for ${link}`);
-            aiText.push("No Content Found")
+            aiText.push("Scraping not allowed or unavailable.")
             continue; // Skip this link if scraping is not allowed
         }
 
@@ -87,6 +87,8 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
                 .replace(/(["'\\$`!])/g, '\\$1') // Escape special characters
                 .replace(/^\ufeff/, '') // Remove BOM character if it exists
                 .replace(/[^\x00-\x7F]/g, '');  // Remove non-ASCII characters (if needed)
+
+            console.log(sanitizedParagraphs)
 
             const { stdout: aiResults, stderr: aiError } = await execAsync(
                 `python ${aiSummary} "${name}" "${sanitizedParagraphs}"`,
