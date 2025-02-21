@@ -6,12 +6,14 @@ import alliantLogo from '../../public/alliant-logo.png'
 import GoogleApiSearch from '@/components/Google_api_search'
 import GoogleCompanySearch from '@/components/google_company_search'
 import GoogleImageSearch from '@/components/GoogleImageSearch'
+import WhatsMyReport from '@/components/WhatsMyReport'
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string }> }) {
-  const { name, company } = await searchParams; // Await the searchParams
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string; username: string }> }) {
+  const { name, company, username } = await searchParams; // Await the searchParams
 
   const nameQuery = name || ""; // Get the name query
   const companyQuery = company || ""; // Get the company query
+  const usernameQuery = username || ""; // Get the username query
   const combineQuery = companyQuery + ' ' + nameQuery;
 
   return (
@@ -57,6 +59,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             {companyQuery && companyQuery !== "" && (
               <Suspense fallback={<div>Loading AI Summary results... </div>}>
                 <GoogleCompanySearch query={combineQuery} />
+              </Suspense>
+            )}
+            {usernameQuery && usernameQuery !== "" && (
+              <Suspense fallback={<div>Loading AI Summary results... </div>}>
+                <WhatsMyReport query={usernameQuery} />
               </Suspense>
             )}
             <div className="mt-4 text-center">

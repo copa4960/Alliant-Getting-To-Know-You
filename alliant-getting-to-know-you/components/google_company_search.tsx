@@ -88,8 +88,6 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
                 .replace(/^\ufeff/, '') // Remove BOM character if it exists
                 .replace(/[^\x00-\x7F]/g, '');  // Remove non-ASCII characters (if needed)
 
-            console.log(sanitizedParagraphs)
-
             const { stdout: aiResults, stderr: aiError } = await execAsync(
                 `python ${aiSummary} "${name}" "${sanitizedParagraphs}"`,
             );
