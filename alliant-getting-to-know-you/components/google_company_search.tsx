@@ -59,7 +59,24 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
             res.data.items.forEach((item: any) => {
                 links.push(item.link);
             });
+        })
+        .catch(error => {
+            if (error.response?.status === 429 || error.response?.data?.error?.code === 429) {
+                console.error("Google API quota exceeded");
+                return [];
+            }
+            console.error("Google API error:", error);
+            return [];
         });
+
+    if (links.length === 0) {
+        return (
+            <div className="text-center mt-4">
+                <p className="text-center text-md mt-2">Company Websites and AI Summaries:</p>
+                <p className="text-red-500">API quota exceeded. Please try again later.</p>
+            </div>
+        );
+    }
 
     // Start Puppeteer to extract content from the links
     const browser = await puppeteer.launch();

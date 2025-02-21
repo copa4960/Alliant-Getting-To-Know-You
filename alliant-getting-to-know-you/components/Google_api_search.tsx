@@ -30,11 +30,28 @@ export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
     await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
       params: config
     })
-    .then(res => {
-      res.data.items.forEach((item: any) => {
-        links.push(item.link);
+      .then(res => {
+        res.data.items.forEach((item: any) => {
+          links.push(item.link);
+        });
+      })
+      .catch(error => {
+        if (error.response?.status === 429 || error.response?.data?.error?.code === 429) {
+          console.error("Google API quota exceeded");
+          return [];
+        }
+        console.error("Google API error:", error);
+        return [];
       });
-    });
+
+    if (links.length === 0) {
+      return (
+        <div className="text-center mt-4">
+          <p className="text-center text-md mt-2">Top social media links found:</p>
+          <p className="text-red-500">API quota exceeded. Please try again later.</p>
+        </div>
+      );
+    }
 
     let repr: string = links.join('|');
     setValue(query, repr);
