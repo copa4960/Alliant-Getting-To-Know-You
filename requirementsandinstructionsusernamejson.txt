@@ -1,0 +1,31 @@
+# Requirements for username_json_creator.py
+# Note: This application works best with Python 3.11
+fastapi==0.88.0
+uvicorn==0.20.0
+requests==2.31.0
+pydantic==1.10.2
+
+# Installation Instructions:
+# 1. Install Python 3.11 from Microsoft Store or python.org
+# 2. Install requirements:
+#    py -3.11 -m pip install -r requirements.txt
+
+# Running the Application:
+# 1. Navigate to the directory containing username_json_creator.py
+# 2. Run the server with:
+#    py -3.11 -m uvicorn username_json_creator:app --reload
+
+# Testing the API:
+# 1. Once running, open your web browser to: http://127.0.0.1:8000/docs
+# 2. Click on POST /process
+# 3. Click "Try it out"
+# 4. Enter a JSON body like:
+#    {
+#      "username": "johndoe"
+#    }
+# 5. Click "Execute"
+
+# Alternative Testing (using curl):
+# curl -X POST "http://127.0.0.1:8000/process" -H "Content-Type: application/json" -d "{\"username\":\"johndoe\"}"
+
+# Note: The server will cache results for better performance on repeated searches 
