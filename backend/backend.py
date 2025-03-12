@@ -55,11 +55,11 @@ def add_corpus_entry(name: str):
         "name": name,
         "images": [{
             "url": image,
-            "isRelevant": True
+            "isRelevant": False
         } for image in images],
         "socials": [{
             "url": url,
-            "isRelevant": True
+            "isRelevant": False
         } for url in socials]
     })
 
