@@ -7,6 +7,8 @@ Run the following command to install all of the requirements:
 To run the backend, run the following command:
     fastapi dev backend.py
 
+Make sure that you have a .env file with values for GOOGLE_CX and GOOGLE_API_KEY.
+
 Files:
     backend.py          Hosts API endpoints that can be queried.
     finder.py           Functions that do the actual fetching of data when there's
