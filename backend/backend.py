@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse, Response
 import finder
 
 from datetime import datetime
+from typing import Optional
 
 app = FastAPI()
 
@@ -32,12 +33,17 @@ def corpus():
     return result
 
 def search_corpus(params: dict) -> dict:
-    people = data.find({
+    query = {
         "name": {
             "$regex": params['name'],
             "$options": "i"
         }
-    })
+    }
+    
+    if 'username' in params and params['username'] is not None:
+        query["userAccount." + params['username']] = {"$exists": True}
+    
+    people = data.find(query)
 
     result = { 'res': [] }
     for person in people:
@@ -46,10 +52,10 @@ def search_corpus(params: dict) -> dict:
 
     return result
 
-def add_corpus_entry(name: str):
+def add_corpus_entry(name: str, username: Optional[str] = None):
     socials = finder.google_search(name)
     images = finder.google_image_search(name)
-    data.insert_one({
+    doc = {
         "timestamp": str(datetime.now()),
         "version": VERSION,
         "name": name,
@@ -61,18 +67,42 @@ def add_corpus_entry(name: str):
             "url": url,
             "isRelevant": False
         } for url in socials]
-    })
+    }
+    
+    if username is not None:
+        userAccounts = finder.username_search(username)
+        # Group accounts by site name
+        sites_dict = {}
+        for account in userAccounts:
+            site_name = account["site_name"]
+            if site_name not in sites_dict:
+                sites_dict[site_name] = {
+                    "url": account["url"],
+                    "isRelevant": False
+                }
+        
+        doc["userAccount"] = {
+            username: {
+                site["site_name"]: {
+                    "url": site["url"],
+                    "isRelevant": False
+                } for site in userAccounts
+            }
+        }
+    
+    data.insert_one(doc)
 
 @app.get("/corpus/search")
-def search(name: str):
+def search(name: str, username: Optional[str] = None):
     qparams = {
-        "name": name
+        "name": name,
+        "username": username
     }
 
     result = search_corpus(qparams)
 
     if len(result['res']) == 0:
-        add_corpus_entry(name)
+        add_corpus_entry(name, username)
         result = search_corpus(qparams)
 
     return result
