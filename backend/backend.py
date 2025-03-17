@@ -52,9 +52,11 @@ def search_corpus(params: dict) -> dict:
 
     return result
 
-def add_corpus_entry(name: str, username: Optional[str] = None):
-    socials = finder.google_search(name)
-    images = finder.google_image_search(name)
+@app.get("/corpus/find_info")
+def find_info(name: str, company: Optional[str] = None, username: Optional[str] = None):
+    socials = finder.google_search(name, company=company)
+    images = finder.google_image_search(name, company=company)
+
     doc = {
         "timestamp": str(datetime.now()),
         "version": VERSION,
@@ -90,7 +92,13 @@ def add_corpus_entry(name: str, username: Optional[str] = None):
             }
         }
     
+    if company is not None:
+        doc["company"] = company
+
     data.insert_one(doc)
+    
+    doc["_id"]
+    return doc
 
 @app.get("/corpus/search")
 def search(name: str, username: Optional[str] = None):
@@ -100,10 +108,6 @@ def search(name: str, username: Optional[str] = None):
     }
 
     result = search_corpus(qparams)
-
-    if len(result['res']) == 0:
-        add_corpus_entry(name, username)
-        result = search_corpus(qparams)
 
     return result
 

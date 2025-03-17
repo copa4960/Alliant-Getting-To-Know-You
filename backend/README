@@ -17,3 +17,6 @@ Files:
 NOTE: See backend.test for the JSON data structure that stores all of the information
 that has been found regarding a person. Do change the VERSION variable if you make
 any changes to the structure.
+
+See API_DOC for more information regarding the API and the corresponding document
+JSON data structure.

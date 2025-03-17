@@ -6,13 +6,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 config = dotenv_values()
 
-def google_search(name: str):
+def google_search(name: str, company: str = None) -> list[str]:
+    squery = name if company is None else name + f" {company}"
     res = requests.get(
         "https://customsearch.googleapis.com/customsearch/v1",
         {
             "cx": config["GOOGLE_CX"],
             "key": config["GOOGLE_API_KEY"],
-            "q": f"{name} (site:instagram.com OR site:tiktok.com OR site:linkedin.com OR site:x.com OR site:instagram.com)"
+            "q": f"{squery} (site:instagram.com OR site:tiktok.com OR site:linkedin.com OR site:x.com OR site:instagram.com)"
         }
     )
 
@@ -22,13 +23,15 @@ def google_search(name: str):
 
     return links
 
-def google_image_search(name: str):
+# TODO: Integrate this function with the above google_search() function.
+def google_image_search(name: str, company: str = None) -> list[str]:
+    squery = name if company is None else name + f" {company}"
     res = requests.get(
         "https://customsearch.googleapis.com/customsearch/v1",
         {
             "cx": config["GOOGLE_CX"],
             "key": config["GOOGLE_API_KEY"],
-            "q": f"{name}",
+            "q": f"{squery}",
             "searchType": "image"
         }
     )
