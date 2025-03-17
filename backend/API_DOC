@@ -1,0 +1,51 @@
+List of API Routes (v0.1.0)
+
+  All query parameters are required unless specified otherwise.
+
+/corpus
+  Lists 20 entries from the database.
+
+/corpus/find_info
+Query Parameters:
+  name: Name of the person
+  company [optional]: Name of the company where the person works at
+  username [optional]: Username of a social media account that the person owns
+
+  Find publicly available information about a given person.
+
+/corpus/search
+Query Parameters:
+  name: Name of the person
+  username [optional]: Username of a social media account that the person owns
+
+  Search the database based on name or, optionally, username.
+
+
+Current JSON Data Structure (v0.1.0)
+{
+  "timestamp": "<creation timestamp>",
+  "version": "<version at the time of creation>",
+  "name": "Person name",
+  "images": [
+    {
+      "url": "<image url>",
+      "isRelevant": true | false
+    },
+    ...
+  ],
+  "socials": [
+    {
+      "url": "<image url>",
+      "isRelevant": true | false
+    }
+  ],
+  "userAccount": {
+    "<username>": {
+      "<website>": {
+        "url": "<account url>",
+        "isRelevant": true | false
+      },
+      ...
+    }
+  }
+}

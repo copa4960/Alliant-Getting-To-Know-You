@@ -72,10 +72,10 @@ def find_info(name: str, company: Optional[str] = None, username: Optional[str] 
     }
     
     if username is not None:
-        userAccounts = finder.username_search(username)
+        user_accounts = finder.username_search(username)
         # Group accounts by site name
         sites_dict = {}
-        for account in userAccounts:
+        for account in user_accounts:
             site_name = account["site_name"]
             if site_name not in sites_dict:
                 sites_dict[site_name] = {
@@ -88,7 +88,7 @@ def find_info(name: str, company: Optional[str] = None, username: Optional[str] 
                 site["site_name"]: {
                     "url": site["url"],
                     "isRelevant": False
-                } for site in userAccounts
+                } for site in user_accounts
             }
         }
     
@@ -96,8 +96,9 @@ def find_info(name: str, company: Optional[str] = None, username: Optional[str] 
         doc["company"] = company
 
     data.insert_one(doc)
+
+    doc["_id"] = str(doc["_id"])
     
-    doc["_id"]
     return doc
 
 @app.get("/corpus/search")
