@@ -7,13 +7,15 @@ import GoogleApiSearch from '@/components/Google_api_search'
 import GoogleCompanySearch from '@/components/google_company_search'
 import GoogleImageSearch from '@/components/GoogleImageSearch'
 import WhatsMyReport from '@/components/WhatsMyReport'
+import AiSiteQuery from '@/components/AiSiteQuery'
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string; username: string }> }) {
-  const { name, company, username } = await searchParams; // Await the searchParams
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string; username: string; site: string }> }) {
+  const { name, company, username, site } = await searchParams; // Await the searchParams
 
   const nameQuery = name || ""; // Get the name query
   const companyQuery = company || ""; // Get the company query
   const usernameQuery = username || ""; // Get the username query
+  const siteQuery = site || ""; // Get the site query
   const combineQuery = companyQuery + ' ' + nameQuery;
 
   return (
@@ -57,6 +59,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <Suspense fallback={<p>Loading Social Media results...</p>}>
                 <GoogleImageSearch query={nameQuery} />
                 <GoogleApiSearch query={nameQuery} />
+              </Suspense>
+            )}
+            {siteQuery && siteQuery !== "" && (
+              <Suspense fallback={<div>Loading AI Summary results... </div>}>
+                <AiSiteQuery query={siteQuery} name={nameQuery} />
               </Suspense>
             )}
             {companyQuery && companyQuery !== "" && (
