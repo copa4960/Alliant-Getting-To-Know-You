@@ -2,7 +2,7 @@
 
 from pymongo import MongoClient
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import RedirectResponse
 
 import finder
 
@@ -10,7 +10,12 @@ from datetime import datetime
 from typing import Optional
 
 import google.generativeai as genai
-from playwright.async_api import async_playwright
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 app = FastAPI()
 
@@ -25,14 +30,20 @@ CORPUS_LIST_LIMIT = 20
 
 #helper functions for webscrape and AI summary
 async def scrape_website_text(url: str) -> str:
-    """Asynchronously extracts and returns text from a given website."""
+    """Asynchronously extracts and returns text from a given website using Selenium."""
+    options = Options()
+    options.add_argument("--headless=new")  
+    service = Service()  # Adjust this if a specific driver path is needed
+    
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)  # Run headless
-            page = await browser.new_page()
-            await page.goto(url, timeout=60000)  # Load the page with timeout
-            text_content = await page.inner_text("body")  # Extract all visible text
-            await browser.close()
+        driver = webdriver.Chrome(service=service, options=options)
+        driver.get(url)
+        
+        # Wait until the body tag is present
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        
+        text_content = driver.find_element(By.TAG_NAME, "body").text
+        driver.quit()
         return text_content
     except Exception as e:
         return f"Error scraping website: {str(e)}"
@@ -42,7 +53,8 @@ async def generate_summary(name: str, text: str) -> str:
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
         response = await model.generate_content_async(
-            f"Summarize this webpage about {name} into:\n"
+            f"{text}\n"
+            "- Summarize this webpage about {name} into:\n"
             "- A brief summary\n"
             "- Marriage status (true/false/unknown)\n"
             "- Interests\n"
@@ -99,6 +111,8 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
         "images": [{"url": image, "isRelevant": False} for image in images],
         "socials": [{"url": url, "isRelevant": False} for url in socials],
     }
+
+    doc = {}
 
     if url:
         scraped_text = await scrape_website_text(url)
