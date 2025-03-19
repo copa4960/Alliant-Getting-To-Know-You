@@ -44,6 +44,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               {companyQuery && companyQuery !== "" && (
                 <> at <strong>{companyQuery}</strong></>
               )}
+              {usernameQuery && usernameQuery !== "" && (
+                <>, username: <strong>{usernameQuery}</strong></>
+              )}
             </p>
             {companyQuery && companyQuery !== "" ? (
               <Suspense fallback={<p>Loading Social Media results...</p>}>
