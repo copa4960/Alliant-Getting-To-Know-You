@@ -17,6 +17,8 @@ app = FastAPI()
 client = MongoClient("mongodb://127.0.0.1")
 data = client['appdb']['data']
 
+genai.configure(api_key="AIzaSyB9RW3Q7-qjmBvPLyamN3zgCXJ8SNw0RLc")
+
 # Update version when JSON data structure is changed.
 VERSION = "0.1.0"
 CORPUS_LIST_LIMIT = 20
