@@ -134,8 +134,6 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
         "socials": [{"url": url, "isRelevant": False} for url in socials],
     }
 
-    doc = {}
-
     if url:
         scraped_text = await scrape_website_text(url)
         if "Error scraping website" in scraped_text:
@@ -145,11 +143,12 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
             # Add the structured AI summary categories to the document
             #print("testing summary", summary)
             doc["web_scrape"] = {
-                "summary": summary[0],
-                "marriage_status": summary[1],
-                "interests": summary[2],
-                "education": summary[3],
+                "summary": {"text": summary[0], "isRelevant": False},
+                "marriage_status": {"text": summary[1], "isRelevant": False},
+                "interests": {"text": summary[2], "isRelevant": False},
+                "education": {"text": summary[3], "isRelevant": False},
             }
+            
     if username:
         user_accounts = finder.username_search(username)
         doc["userAccount"] = {
