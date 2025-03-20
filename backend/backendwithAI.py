@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 import finder
+import re
 
 from datetime import datetime
 from typing import Optional
@@ -48,7 +49,9 @@ async def scrape_website_text(url: str) -> str:
     except Exception as e:
         return f"Error scraping website: {str(e)}"
     
-async def generate_summary(name: str, text: str) -> str:
+import re
+
+async def generate_summary(name: str, text: str) -> list:
     """Generates an AI summary for the scraped text."""
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
@@ -60,9 +63,28 @@ async def generate_summary(name: str, text: str) -> str:
             "- Interests\n"
             "- Education"
         )
-        return response.text if response and response.text else "AI summary could not be generated."
+        text = response.text if response and response.text else "AI summary could not be generated."
+
+        # Print raw output for debugging
+        #print("Raw AI Output:", text)
+
+        summary_match = re.search(r"\*\*Brief Summary:\*\*\s*(.*?)(?=\n\*\*Marriage Status:|\Z)", text, re.DOTALL)
+        marriage_match = re.search(r"\*\*Marriage Status:\*\*\s*(.*?)(?=\n\*\*Interests:|\Z)", text, re.DOTALL)
+        interests_match = re.search(r"\*\*Interests:\*\*\s*(.*?)(?=\n\*\*Education:|\Z)", text, re.DOTALL)
+        education_match = re.search(r"\*\*Education:\*\*\s*(.*)", text, re.DOTALL)
+
+        summary = summary_match.group(1).strip()
+        marriage = marriage_match.group(1).strip()
+        interests = interests_match.group(1).strip()
+        education = education_match.group(1).strip()
+        result = [summary, marriage, interests, education]
+        # Debugging the split result
+        #print("Split Result:", result)
+
+        return result
+
     except Exception as e:
-        return f"AI Error: {str(e)}"
+        return [f"AI Error: {str(e)}"]
 
 
 @app.get("/")
@@ -120,7 +142,14 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
             doc["web_scrape"] = {"error": scraped_text}
         else:
             summary = await generate_summary(name, scraped_text)
-            doc["web_scrape"] = {"summary": summary}
+            # Add the structured AI summary categories to the document
+            #print("testing summary", summary)
+            doc["web_scrape"] = {
+                "summary": summary[0],
+                "marriage_status": summary[1],
+                "interests": summary[2],
+                "education": summary[3],
+            }
     if username:
         user_accounts = finder.username_search(username)
         doc["userAccount"] = {
