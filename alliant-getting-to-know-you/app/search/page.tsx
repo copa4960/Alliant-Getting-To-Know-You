@@ -70,7 +70,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <h2 className="text-lg font-semibold mb-2">Known Site AI Summary</h2>
               {siteQuery && siteQuery !== "" && (
                 <Suspense fallback={<div className="text-sm">Loading AI Summary...</div>}>
-                  <AiSiteQuery query={siteQuery} name={nameQuery} />
+                  <AiSiteQuery name={nameQuery} company={companyQuery} />
                 </Suspense>
               )}
             </div>

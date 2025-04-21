@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import puppeteer from "puppeteer";
 import fetch from "node-fetch";
 import { exec } from 'child_process';
@@ -6,8 +7,9 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
-const CX = "c1844a91c0f9849e1";
+const API_KEY = "AIzaSyAbu6ulNt5xaaetWpzbVX0b90XD5UjtZxA";
+const CX = "d3e8dde1adebe48a8";
+//const CX = "c1844a91c0f9849e1";
 
 interface GoogleCompanySearchProps {
     query: string;
