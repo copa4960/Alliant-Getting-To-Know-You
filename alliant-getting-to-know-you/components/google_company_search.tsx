@@ -72,7 +72,6 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
     if (links.length === 0) {
         return (
             <div className="text-center mt-4">
-                <p className="text-center text-md mt-2">Company Websites and AI Summaries:</p>
                 <p className="text-red-500">API quota exceeded. Please try again later.</p>
             </div>
         );
@@ -125,21 +124,36 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
 
     return (
         <div>
-            <p className="text-center text-md mt-2">Company Websites and AI Summaries:</p>
-            <ul className="mt-4">
-                {links.map((link, index) => (
-                    <li key={index} className="text-center mb-8">
-                        <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                            {link}
-                        </a>
-                        {aiText[index] && (
-                            <p className="mt-2 text-sm text-gray-700">
-                                {aiText[index]}
-                            </p>
-                        )}
-                    </li>
-                ))}
-            </ul>
+          <ul className="list-none pl-5">
+            {links.map((link, index) => {
+              const displayLink = link.length > 80 ? `${link.substring(0, 79)}...` : link;
+              return (
+                <li key={index} className="text-left mb-4"> {/* spacing between blocks */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-900">Link:</span>
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline break-all"
+                      title={link}
+                    >
+                      {displayLink}
+                    </a>
+                  </div>
+                  {aiText[index] && (
+                    <div>
+                      <div className="font-medium text-gray-900">Summary:</div>
+                      <p className="mt-1 text-sm text-gray-700">
+                        {aiText[index]}
+                      </p>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
         </div>
-    );
+      );
+      
 }

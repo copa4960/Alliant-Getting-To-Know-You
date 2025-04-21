@@ -87,17 +87,20 @@ export default async function AiSiteQuery({ query, name }: AiSiteQueryProps) {
 
     return (
         <div>
-            <p className="text-center text-md mt-2">Known Site AI Summary:</p>
-            <ul className="mt-4">
+            <ul className="mt-4 space-y-6">
                 {links.map((link, index) => (
-                    <li key={index} className="text-center mb-8">
-                        <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                    <li key={index} className="text-left">
+                        <div className="font-medium text-gray-900">Link:</div>
+                        <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline break-all">
                             {link}
                         </a>
                         {aiText[index] && (
-                            <p className="mt-2 text-sm text-gray-700">
-                                {aiText[index]}
-                            </p>
+                            <div className="mt-2">
+                                <div className="font-medium text-gray-900">Summary:</div>
+                                <p className="mt-1 text-sm text-gray-700">
+                                    {aiText[index]}
+                                </p>
+                            </div>
                         )}
                     </li>
                 ))}

@@ -22,16 +22,27 @@ export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
 
   return (
     <div>
-      <p className="text-center text-md mt-2">Top social media links found:</p>
-      <ul className="mt-4">
-        {links.map((link, index) => (
-          <li key={index} className="text-center">
-            <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-              {link}
-            </a>
-          </li>
-        ))}
+      <ul className="list-none pl-5"> {/* Or use list-decimal for numbers */}
+        {links.map((link, index) => {
+          const displayLink = link.length > 50 ? `${link.substring(0, 47)}...` : link;
+          return (
+            <li key={index} className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-900">{index + 1}.</span>
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline break-all"
+                  title={link}
+                >
+                  {displayLink}
+                </a>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
-  );
+  );  
 }
