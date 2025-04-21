@@ -10,7 +10,8 @@ export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
   let links: string[] = [];
   await axios.get('http://localhost:8000/corpus/search', {
     params: {
-      name: query
+      name: query,
+      do_find: true
     }
   })
   .then(res => {

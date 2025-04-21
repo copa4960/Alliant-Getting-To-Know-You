@@ -170,14 +170,19 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
     return doc
 
 @app.get("/corpus/search")
-def search(name: str, username: Optional[str] = None):
+async def search(name: str, company: Optional[str] = None, username: Optional[str] = None, do_find = False):
     qparams = {
         "name": name,
+        "company": company,
         "username": username
     }
 
     result = search_corpus(qparams)
+    if result['res'] == [] and do_find:
+        print("Nothing in corpus. Finding info...")
+        result['res'] = [await find_info(name, company, username)]
 
+    # print("returning", result)
     return result
 
 @app.get("/corpus/test")

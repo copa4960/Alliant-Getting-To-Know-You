@@ -20,7 +20,8 @@ export default async function GoogleImageSearch({ query }: GoogleImageSearchProp
   let links: string[] = [];
   await axios.get('http://localhost:8000/corpus/search', {
     params: {
-      name: query
+      name: query,
+      do_find: true
     }
   })
   .then(res => {
