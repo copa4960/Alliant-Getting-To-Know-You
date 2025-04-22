@@ -66,22 +66,22 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
           {/* Middle Column - AI Summary and Company Info */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-2">Known Site AI Summary</h2>
-              {siteQuery && siteQuery !== "" && (
+            {siteQuery && siteQuery !== "" && (
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">Known Site AI Summary</h2>
                 <Suspense fallback={<div className="text-sm">Loading AI Summary...</div>}>
-                  <AiSiteQuery name={nameQuery} company={companyQuery} />
+                  <AiSiteQuery name={nameQuery} company={companyQuery} url={siteQuery}/>
                 </Suspense>
-              )}
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-2">AI Article Summaries</h2>
-              {companyQuery && companyQuery !== "" && (
+              </div>
+            )}
+            {companyQuery && companyQuery !== "" && (
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">AI Article Summaries</h2>
                 <Suspense fallback={<div className="text-sm">Loading company information...</div>}>
                   <GoogleCompanySearch query={combineQuery} />
                 </Suspense>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Username Search Results */}
@@ -92,14 +92,14 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 <GoogleApiSearch query={companyQuery ? combineQuery : nameQuery} />
               </Suspense>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-2">Username Search</h2>
-              {usernameQuery && usernameQuery !== "" && (
+            {usernameQuery && usernameQuery !== "" && (
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">Username Search</h2>
                 <Suspense fallback={<div className="text-sm">Loading username results...</div>}>
                   <WhatsMyReport query={usernameQuery} />
                 </Suspense>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

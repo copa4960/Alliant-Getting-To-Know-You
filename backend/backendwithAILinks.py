@@ -20,6 +20,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import requests
 from urllib.parse import urlencode
 
+from dotenv import load_dotenv
+import os
+
 app = FastAPI()
 
 client = MongoClient("mongodb://127.0.0.1")
@@ -141,106 +144,168 @@ def search_corpus(params: dict) -> dict:
         }
     }
     
+    # Add URL condition if provided
+    if 'url' in params and params['url'] is not None:
+        query["url"] = params['url']
+    
+    # Add username condition if provided
     if 'username' in params and params['username'] is not None:
         query["userAccount." + params['username']] = {"$exists": True}
     
+    # Add company condition if provided
+    if 'company' in params and params['company'] is not None:
+        query["company"] = {
+            "$regex": params['company'],
+            "$options": "i"
+        }
+    
     people = data.find(query)
-
     result = { 'res': [] }
     for person in people:
         person['_id'] = str(person['_id'])
         result['res'].append(person)
-
+    
     return result
 
 @app.get("/corpus/find_info")
 async def find_info(name: str, company: Optional[str] = None, username: Optional[str] = None, url: Optional[str] = None):
-    socials = finder.google_search(name, company=company)
-    images = finder.google_image_search(name, company=company)
-
     doc = {
         "timestamp": str(datetime.now()),
         "version": VERSION,
         "name": name,
-        "images": [{"url": image, "isRelevant": False} for image in images],
-        "socials": [{"url": url, "isRelevant": False} for url in socials],
     }
 
+    # Handle socials and images search
+    try:
+        socials = finder.google_search(name, company=company)
+        images = finder.google_image_search(name, company=company)
+        doc["images"] = [{"url": image, "isRelevant": False} for image in images]
+        doc["socials"] = [{"url": url, "isRelevant": False} for url in socials]
+    except Exception as e:
+        print(f"Error in socials/images search: {str(e)}")
+        doc["images"] = []
+        doc["socials"] = []
+
+    # Handle auto-scraping for name
+    if name:
+        try:
+            load_dotenv()
+            GOOGLE_CX = os.getenv("GOOGLE_CX")
+            GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+            if GOOGLE_CX and GOOGLE_API_KEY:
+                combined_query = f"{name} {company}" if company else name
+                links = get_google_links(combined_query, GOOGLE_CX, GOOGLE_API_KEY)
+
+                summaries = []
+                for link in links[:3]:  # Limit to top 3 for performance
+                    try:
+                        scraped_text = await scrape_website_text(link)
+                        if "Error scraping website" in scraped_text:
+                            summaries.append({"url": link, "error": scraped_text})
+                            continue
+
+                        ai = await generate_summary2(name, scraped_text)
+                        summaries.append({
+                            "url": link,
+                            "summary": {"text": ai, "isRelevant": False},
+                        })
+                    except Exception as e:
+                        print(f"Error processing link {link}: {str(e)}")
+                        summaries.append({"url": link, "error": str(e)})
+
+                doc["auto_scrape"] = summaries
+            else:
+                doc["auto_scrape"] = [{"error": "Missing Google API credentials"}]
+        except Exception as e:
+            print(f"Error in auto-scraping: {str(e)}")
+            doc["auto_scrape"] = [{"error": str(e)}]
+
     if url:
-        scraped_text = await scrape_website_text(url)
-        if "Error scraping website" in scraped_text:
-            doc["web_scrape"] = {"error": scraped_text}
-        else:
-            summary = await generate_summary(name, scraped_text)
-            # Add the structured AI summary categories to the document
-            #print("testing summary", summary)
-            doc["web_scrape"] = {
-                "summary": {"text": summary[0], "isRelevant": False},
-                "marriage_status": {"text": summary[1], "isRelevant": False},
-                "interests": {"text": summary[2], "isRelevant": False},
-                "education": {"text": summary[3], "isRelevant": False},
-            }
-            
-    if username:
-        user_accounts = finder.username_search(username)
-        doc["userAccount"] = {
-            username: {
-                account["site_name"]: {
-                    "url": account["url"],
-                    "isRelevant": False,
+        try:
+            scraped_text = await scrape_website_text(url)
+            if "Error scraping website" in scraped_text:
+                doc["web_scrape"] = {"error": scraped_text}
+            else:
+                summary = await generate_summary(name, scraped_text)
+                doc["web_scrape"] = {
+                    "url": {"text": url, "isRelevant": False},
+                    "summary": {"text": summary[0], "isRelevant": False},
+                    "marriage_status": {"text": summary[1], "isRelevant": False},
+                    "interests": {"text": summary[2], "isRelevant": False},
+                    "education": {"text": summary[3], "isRelevant": False},
                 }
-                for account in user_accounts
+        except Exception as e:
+            print(f"Error in URL scraping: {str(e)}")
+            doc["web_scrape"] = {"error": str(e)}
+
+    if username:
+        try:
+            user_accounts = finder.username_search(username)
+            doc["userAccount"] = {
+                username: {
+                    account["site_name"]: {
+                        "url": account["url"],
+                        "isRelevant": False,
+                    }
+                    for account in user_accounts
+                }
             }
-        }
+        except Exception as e:
+            print(f"Error in username search: {str(e)}")
+            doc["userAccount"] = {username: {"error": str(e)}}
 
     if company:
         doc["company"] = company
-         # to get summaries for a bunch of links
-        from dotenv import load_dotenv
-        import os
-        load_dotenv()
 
-        GOOGLE_CX = os.getenv("GOOGLE_CX")
-        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-        combined_query = f"{name} {company}" if company else name
-        links = get_google_links(combined_query, GOOGLE_CX, GOOGLE_API_KEY)
-
-        summaries = []
-        for link in links[:3]:  # Limit to top 3 for performance
-            scraped_text = await scrape_website_text(link)
-            if "Error scraping website" in scraped_text:
-                summaries.append({"url": link, "error": scraped_text})
-                continue
-
-            ai = await generate_summary2(name, scraped_text)
-            summaries.append({
-                "url": link,
-                "summary": {"text": ai, "isRelevant": False},
-            })
-
-        doc["auto_scrape"] = summaries
-
-    data.insert_one(doc)
-    doc["_id"] = str(doc["_id"])
+    try:
+        data.insert_one(doc)
+        doc["_id"] = str(doc["_id"])
+    except Exception as e:
+        print(f"Error inserting document: {str(e)}")
+        # Still return the document even if insertion fails
+        doc["_id"] = "error"
 
     return doc
 
 @app.get("/corpus/search")
-async def search(name: str, company: Optional[str] = None, username: Optional[str] = None, do_find = False):
-    qparams = {
-        "name": name,
-        "company": company,
-        "username": username
-    }
+async def search(name: str, company: Optional[str] = None, username: Optional[str] = None, url: Optional[str] = None, do_find = False):
+    try:
+        qparams = {
+            "name": name,
+            "company": company,
+            "username": username,
+            "url": url
+        }
 
-    result = search_corpus(qparams)
-    if result['res'] == [] and do_find:
-        print("Nothing in corpus. Finding info...")
-        result['res'] = [await find_info(name, company, username)]
+        result = search_corpus(qparams)
+        if result['res'] == [] and do_find:
+            print("Nothing in corpus. Finding info...")
+            try:
+                found_info = await find_info(name, company, username, url)
+                result['res'] = [found_info]
+            except Exception as e:
+                print(f"Error in find_info: {str(e)}")
+                result['res'] = [{
+                    "error": str(e),
+                    "name": name,
+                    "company": company,
+                    "url": url,
+                    "username": username
+                }]
 
-    # print("returning", result)
-    return result
+        return result
+    except Exception as e:
+        print(f"Error in search: {str(e)}")
+        return {
+            "res": [{
+                "error": str(e),
+                "name": name,
+                "company": company,
+                "url": url,
+                "username": username
+            }]
+        }
 
 @app.get("/corpus/test")
 def test():
