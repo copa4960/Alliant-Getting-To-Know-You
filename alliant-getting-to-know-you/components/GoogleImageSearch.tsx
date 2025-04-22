@@ -4,7 +4,8 @@ const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
 const CX = "c1844a91c0f9849e1";
 
 interface GoogleImageSearchProps {
-  query: string; // Accept query as a prop
+  name: string;
+  company: string;
 }
 
 interface GAPIImgSearchParams {
@@ -14,13 +15,13 @@ interface GAPIImgSearchParams {
   searchType: string;
 }
 
-export default async function GoogleImageSearch({ query }: GoogleImageSearchProps) {
-  console.log(`Got q: ${query}`);
+export default async function GoogleImageSearch({ name, company }: GoogleImageSearchProps) {
 
   let links: string[] = [];
   await axios.get('http://localhost:8000/corpus/search', {
     params: {
-      name: query,
+      name: name,
+      company: company,
       do_find: true
     }
   })

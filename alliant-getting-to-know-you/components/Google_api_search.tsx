@@ -1,16 +1,17 @@
 import axios from "axios";
 
 interface GoogleApiSearchProps {
-  query: string; // Accept query as a prop
+  name: string;
+  company: string;
 }
 
-export default async function GoogleApiSearch({ query }: GoogleApiSearchProps) {
-  console.log(`Got q: ${query}`);
+export default async function GoogleApiSearch({ name, company }: GoogleApiSearchProps) {
 
   let links: string[] = [];
   await axios.get('http://localhost:8000/corpus/search', {
     params: {
-      name: query,
+      name: name,
+      company: company,
       do_find: true
     }
   })

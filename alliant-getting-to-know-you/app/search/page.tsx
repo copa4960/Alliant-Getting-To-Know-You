@@ -59,7 +59,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">Top Images</h2>
               <Suspense fallback={<p className="text-sm">Loading images...</p>}>
-                <GoogleImageSearch query={companyQuery ? combineQuery : nameQuery} />
+                <GoogleImageSearch name={nameQuery} company={companyQuery}  />
               </Suspense>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">Top Social Media Links</h2>
               <Suspense fallback={<p className="text-sm">Loading social media results...</p>}>
-                <GoogleApiSearch query={companyQuery ? combineQuery : nameQuery} />
+                <GoogleApiSearch name={nameQuery} company={companyQuery} />
               </Suspense>
             </div>
             {usernameQuery && usernameQuery !== "" && (
