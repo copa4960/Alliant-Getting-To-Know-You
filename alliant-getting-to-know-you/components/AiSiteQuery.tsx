@@ -25,9 +25,6 @@ export default async function AiSiteQuery({ name, company }: AiSiteQueryProps) {
 
   return (
     <div>
-      <h3 className="text-center text-md mt-4 font-semibold">
-        AI Summaries from Relevant Sites
-      </h3>
       <ul className="mt-4 space-y-6">
         {autoScrapeSummaries.map((item, index) => (
           <li key={index} className="text-left">

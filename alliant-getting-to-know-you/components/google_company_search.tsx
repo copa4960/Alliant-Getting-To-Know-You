@@ -145,7 +145,6 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
                   </div>
                   {aiText[index] && (
                     <div>
-                      <div className="font-medium text-gray-900">Summary:</div>
                       <p className="mt-1 text-sm text-gray-700">
                         {aiText[index]}
                       </p>
