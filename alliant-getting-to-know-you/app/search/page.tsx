@@ -60,7 +60,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">Top Images</h2>
               <Suspense fallback={<p className="text-sm">Loading images...</p>}>
-                <GoogleImageSearch name={nameQuery} company={companyQuery} />
+                <GoogleImageSearch name={nameQuery} company={companyQuery} username={usernameQuery} url={siteQuery} />
               </Suspense>
             </div>
           </div>

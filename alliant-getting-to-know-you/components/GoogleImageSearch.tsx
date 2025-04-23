@@ -6,6 +6,8 @@ const CX = "c1844a91c0f9849e1";
 interface GoogleImageSearchProps {
   name: string;
   company: string;
+  username?: string;
+  url?: string;
 }
 
 interface GAPIImgSearchParams {
@@ -15,13 +17,15 @@ interface GAPIImgSearchParams {
   searchType: string;
 }
 
-export default async function GoogleImageSearch({ name, company }: GoogleImageSearchProps) {
+export default async function GoogleImageSearch({ name, company, username, url }: GoogleImageSearchProps) {
 
   let links: string[] = [];
   await axios.get('http://localhost:8000/corpus/search', {
     params: {
       name: name,
       company: company,
+      ...(username ? { username } : {}),
+      ...(url ? { url } : {}),
       do_find: true
     }
   })
