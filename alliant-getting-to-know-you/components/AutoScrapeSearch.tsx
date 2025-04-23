@@ -3,10 +3,9 @@ import axios from "axios";
 interface AutoScrapeSearchProps {
   name: string;
   company: string;
-  username?: string;
 }
 
-export default async function AutoScrapeSearch({ name, company, username }: AutoScrapeSearchProps) {
+export default async function AutoScrapeSearch({ name, company }: AutoScrapeSearchProps) {
   let summaries: any[] = [];
   let error = null;
 
@@ -15,7 +14,6 @@ export default async function AutoScrapeSearch({ name, company, username }: Auto
       params: {
         name: name,
         company: company,
-        ...(username ? { username } : {}),
         do_find: true
       }
     });

@@ -79,7 +79,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">AI Article Summaries</h2>
               <Suspense fallback={<div className="text-sm">Loading company information...</div>}>
-                <AutoScrapeSearch name={nameQuery} company={companyQuery} username={usernameQuery} />
+                <AutoScrapeSearch name={nameQuery} company={companyQuery} />
               </Suspense>
             </div>
 
