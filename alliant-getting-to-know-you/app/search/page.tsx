@@ -7,6 +7,7 @@ import GoogleCompanySearch from '@/components/google_company_search'
 import GoogleImageSearch from '@/components/GoogleImageSearch'
 import WhatsMyReport from '@/components/WhatsMyReport'
 import AiSiteQuery from '@/components/AiSiteQuery'
+import AutoScrapeSearch from '@/components/AutoScrapeSearch'
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name: string; company: string; username: string; site: string }> }) {
   const { name, company, username, site } = await searchParams; // Await the searchParams
@@ -52,14 +53,14 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             )}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[2000px] mx-auto">
           {/* Left Column - Images */}
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">Top Images</h2>
               <Suspense fallback={<p className="text-sm">Loading images...</p>}>
-                <GoogleImageSearch name={nameQuery} company={companyQuery}  />
+                <GoogleImageSearch name={nameQuery} company={companyQuery} />
               </Suspense>
             </div>
           </div>
@@ -70,18 +71,18 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <h2 className="text-lg font-semibold mb-2">Known Site AI Summary</h2>
                 <Suspense fallback={<div className="text-sm">Loading AI Summary...</div>}>
-                  <AiSiteQuery name={nameQuery} company={companyQuery} url={siteQuery}/>
+                  <AiSiteQuery name={nameQuery} company={companyQuery} url={siteQuery} />
                 </Suspense>
               </div>
             )}
-            {companyQuery && companyQuery !== "" && (
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <h2 className="text-lg font-semibold mb-2">AI Article Summaries</h2>
-                <Suspense fallback={<div className="text-sm">Loading company information...</div>}>
-                  <GoogleCompanySearch query={combineQuery} />
-                </Suspense>
-              </div>
-            )}
+
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h2 className="text-lg font-semibold mb-2">AI Article Summaries</h2>
+              <Suspense fallback={<div className="text-sm">Loading company information...</div>}>
+                <AutoScrapeSearch name={nameQuery} company={companyQuery} username={usernameQuery} />
+              </Suspense>
+            </div>
+
           </div>
 
           {/* Right Column - Username Search Results */}

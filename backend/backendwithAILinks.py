@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse
 import finder
 import re
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import google.generativeai as genai
@@ -25,14 +25,22 @@ import os
 
 app = FastAPI()
 
-client = MongoClient("mongodb://127.0.0.1")
-data = client['appdb']['data']
+try:
+    print("Attempting to connect to MongoDB...")
+    client = MongoClient("mongodb://127.0.0.1")
+    # Force a connection attempt to verify it works
+    client.admin.command('ping')
+    print("Successfully connected to MongoDB")
+    data = client['appdb']['data']
+except Exception as e:
+    print(f"Failed to connect to MongoDB: {str(e)}")
+    raise e
 
 genai.configure(api_key="AIzaSyB9RW3Q7-qjmBvPLyamN3zgCXJ8SNw0RLc")
 
 # Update version when JSON data structure is changed.
 VERSION = "0.1.0"
-CORPUS_LIST_LIMIT = 20
+CORPUS_LIST_LIMIT = 100
 
 #helper functions for webscrape and AI summary
 async def scrape_website_text(url: str) -> str:
@@ -78,18 +86,17 @@ async def generate_summary(name: str, text: str) -> list:
         interests_match = re.search(r"\*\*Interests:\*\*\s*(.*?)(?=\n\*\*Education:|\Z)", text, re.DOTALL)
         education_match = re.search(r"\*\*Education:\*\*\s*(.*)", text, re.DOTALL)
 
-        summary = summary_match.group(1).strip()
-        marriage = marriage_match.group(1).strip()
-        interests = interests_match.group(1).strip()
-        education = education_match.group(1).strip()
+        # Handle cases where sections are missing
+        summary = summary_match.group(1).strip() if summary_match else "No summary available"
+        marriage = marriage_match.group(1).strip() if marriage_match else "Unknown"
+        interests = interests_match.group(1).strip() if interests_match else "No interests found"
+        education = education_match.group(1).strip() if education_match else "No education information found"
+        
         result = [summary, marriage, interests, education]
-        # Debugging the split result
-        #print("Split Result:", result)
-
         return result
 
     except Exception as e:
-        return [f"AI Error: {str(e)}"]
+        return ["AI Error: " + str(e), "Unknown", "No interests found", "No education information found"]
 #helper function 
 async def generate_summary2(name: str, extracted_text: str) -> list:
     """Generates an AI summary for the scraped text."""
@@ -137,16 +144,30 @@ def corpus():
     return result
 
 def search_corpus(params: dict) -> dict:
+    # Calculate the date one month ago
+    one_month_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    
+    # Name is required for all queries
     query = {
         "name": {
-            "$regex": params['name'],
+            "$regex": params['name'].strip(),
             "$options": "i"
+        },
+        "timestamp": {
+            "$gte": one_month_ago
         }
     }
     
     # Add URL condition if provided
     if 'url' in params and params['url'] is not None:
-        query["url"] = params['url']
+        query["$or"] = [
+            {"web_scrape.url.text": params['url']},
+            {"auto_scrape": {
+                "$elemMatch": {
+                    "url": params['url']
+                }
+            }}
+        ]
     
     # Add username condition if provided
     if 'username' in params and params['username'] is not None:
@@ -155,15 +176,34 @@ def search_corpus(params: dict) -> dict:
     # Add company condition if provided
     if 'company' in params and params['company'] is not None:
         query["company"] = {
-            "$regex": params['company'],
+            "$regex": params['company'].strip(),
             "$options": "i"
         }
     
-    people = data.find(query)
+    # Sort by timestamp in descending order to get most recent first
+    people = data.find(query).sort("timestamp", -1)
     result = { 'res': [] }
     for person in people:
         person['_id'] = str(person['_id'])
-        result['res'].append(person)
+        
+        # Verify the result has all required sections based on input parameters
+        is_valid = True
+        
+        # Always should have auto_scrape section
+        if 'auto_scrape' not in person:
+            is_valid = False
+            
+        # If URL provided, must have web_scrape section
+        if is_valid and params.get('url') and 'web_scrape' not in person:
+            is_valid = False
+            
+        # If username provided, must have userAccount section
+        if is_valid and params.get('username') and 'userAccount' not in person:
+            is_valid = False
+        
+        if is_valid:
+            result['res'].append(person)
+            break  # Take only the most recent valid result
     
     return result
 
@@ -198,7 +238,7 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
                 links = get_google_links(combined_query, GOOGLE_CX, GOOGLE_API_KEY)
 
                 summaries = []
-                for link in links[:3]:  # Limit to top 3 for performance
+                for link in links[:5]:  # Limit to top 5 for performance
                     try:
                         scraped_text = await scrape_website_text(link)
                         if "Error scraping website" in scraped_text:
@@ -259,13 +299,16 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
         doc["company"] = company
 
     try:
-        data.insert_one(doc)
+        print(f"Attempting to insert document for {name}...")
+        print(f"Document structure: {doc}")
+        insert_result = data.insert_one(doc)
+        print(f"Document inserted successfully. Insert ID: {insert_result.inserted_id}")
         doc["_id"] = str(doc["_id"])
     except Exception as e:
         print(f"Error inserting document: {str(e)}")
+        print(f"Full error details: {repr(e)}")
         # Still return the document even if insertion fails
         doc["_id"] = "error"
-
     return doc
 
 @app.get("/corpus/search")
