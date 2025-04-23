@@ -214,6 +214,8 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
         "version": VERSION,
         "name": name,
     }
+    if company:
+        doc["Company"] = company
 
     # Handle socials and images search
     try:
@@ -294,9 +296,6 @@ async def find_info(name: str, company: Optional[str] = None, username: Optional
         except Exception as e:
             print(f"Error in username search: {str(e)}")
             doc["userAccount"] = {username: {"error": str(e)}}
-
-    if company:
-        doc["company"] = company
 
     try:
         print(f"Attempting to insert document for {name}...")
