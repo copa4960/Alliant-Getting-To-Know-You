@@ -71,7 +71,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <h2 className="text-lg font-semibold mb-2">Known Site AI Summary</h2>
                 <Suspense fallback={<div className="text-sm">Loading AI Summary...</div>}>
-                  <AiSiteQuery name={nameQuery} company={companyQuery} url={siteQuery} />
+                  <AiSiteQuery name={nameQuery} company={companyQuery} url={siteQuery} username={usernameQuery} />
                 </Suspense>
               </div>
             )}
@@ -79,7 +79,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">AI Article Summaries</h2>
               <Suspense fallback={<div className="text-sm">Loading company information...</div>}>
-                <AutoScrapeSearch name={nameQuery} company={companyQuery} />
+                <AutoScrapeSearch name={nameQuery} company={companyQuery} username={usernameQuery} url={siteQuery} />
               </Suspense>
             </div>
 
@@ -90,7 +90,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold mb-2">Top Social Media Links</h2>
               <Suspense fallback={<p className="text-sm">Loading social media results...</p>}>
-                <GoogleApiSearch name={nameQuery} company={companyQuery} />
+                <GoogleApiSearch name={nameQuery} company={companyQuery} username={usernameQuery} url={siteQuery} />
               </Suspense>
             </div>
             {usernameQuery && usernameQuery !== "" && (

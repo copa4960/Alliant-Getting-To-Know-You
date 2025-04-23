@@ -3,10 +3,11 @@ import axios from "axios";
 interface AiSiteQueryProps {
   name: string;
   company: string;
-  url: string
+  url: string;
+  username?: string;
 }
 
-export default async function AiSiteQuery({ name, company, url}: AiSiteQueryProps) {
+export default async function AiSiteQuery({ name, company, url, username }: AiSiteQueryProps) {
   let summary: any[] = [];
   let error = null;
 
@@ -16,6 +17,7 @@ export default async function AiSiteQuery({ name, company, url}: AiSiteQueryProp
         name: name,
         company: company,
         url: url,
+        ...(username ? { username } : {}),
         do_find: true
       }
     });

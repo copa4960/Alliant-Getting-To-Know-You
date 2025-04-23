@@ -3,15 +3,19 @@ import axios from "axios";
 interface GoogleApiSearchProps {
   name: string;
   company: string;
+  username?: string;
+  url?: string;
 }
 
-export default async function GoogleApiSearch({ name, company }: GoogleApiSearchProps) {
+export default async function GoogleApiSearch({ name, company, username, url }: GoogleApiSearchProps) {
 
   let links: string[] = [];
   await axios.get('http://localhost:8000/corpus/search', {
     params: {
       name: name,
       company: company,
+      ...(username ? { username } : {}),
+      ...(url ? { url } : {}),
       do_find: true
     }
   })
