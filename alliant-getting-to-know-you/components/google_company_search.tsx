@@ -7,8 +7,8 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-const API_KEY = "AIzaSyAbu6ulNt5xaaetWpzbVX0b90XD5UjtZxA";
-const CX = "c1844a91c0f9849e1";
+const API_KEY = "";
+const CX = "";
 
 interface GoogleCompanySearchProps {
     query: string;

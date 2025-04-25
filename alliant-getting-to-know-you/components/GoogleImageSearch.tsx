@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
-const CX = "c1844a91c0f9849e1";
+const API_KEY = "";
+const CX = "";
 
 interface GoogleImageSearchProps {
   name: string;

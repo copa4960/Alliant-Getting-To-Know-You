@@ -7,7 +7,7 @@ from playwright.async_api import async_playwright  # Import Async Playwright
 app = FastAPI()
 
 # Configure Gemini AI with API Key (Replace with your actual key)
-genai.configure(api_key="AIzaSyB9RW3Q7-qjmBvPLyamN3zgCXJ8SNw0RLc")  
+genai.configure(api_key="")  
 
 #  Add Root Endpoint
 @app.get("/")

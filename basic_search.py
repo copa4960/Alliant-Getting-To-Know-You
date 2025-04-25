@@ -4,8 +4,8 @@ import sys
 import requests
 import json
 
-API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4"
-CX = "c1844a91c0f9849e1"
+API_KEY = ""
+CX = ""
 
 def search(query, image=False):
     r = requests.get("https://customsearch.googleapis.com/customsearch/v1", 

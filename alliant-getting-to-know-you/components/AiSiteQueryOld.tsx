@@ -6,8 +6,8 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-const API_KEY = "AIzaSyAHE4dG6_A6RliPn3tLFyV_BNN6I2T7Hm4";
-const CX = "c1844a91c0f9849e1";
+const API_KEY = "";
+const CX = "";
 
 interface AiSiteQueryProps {
     query: string;

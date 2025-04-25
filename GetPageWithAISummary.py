@@ -11,7 +11,7 @@ name = sys.argv[1]
 extracted_text = sys.argv[2]
 
 # Gemini AI key
-genai.configure(api_key="AIzaSyB9RW3Q7-qjmBvPLyamN3zgCXJ8SNw0RLc")
+genai.configure(api_key="")
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Function to handle AI request with timeout handling
