@@ -25,9 +25,13 @@ import os
 
 app = FastAPI()
 
+# Load environment variables
+load_dotenv()
+
 try:
     print("Attempting to connect to MongoDB...")
-    client = MongoClient("mongodb://127.0.0.1")
+    MONGO_URL = os.getenv("MONGO_URL")
+    client = MongoClient(MONGO_URL)
     # Force a connection attempt to verify it works
     client.admin.command('ping')
     print("Successfully connected to MongoDB")
@@ -36,11 +40,15 @@ except Exception as e:
     print(f"Failed to connect to MongoDB: {str(e)}")
     raise e
 
-genai.configure(api_key="AIzaSyB9RW3Q7-qjmBvPLyamN3zgCXJ8SNw0RLc")
+# Configure Google Generative AI with API key from environment
+GENAI_API_KEY = os.getenv("GENAI_API_KEY")
+if not GENAI_API_KEY:
+    raise ValueError("GENAI_API_KEY environment variable is not set")
+genai.configure(api_key=GENAI_API_KEY)
 
 # Update version when JSON data structure is changed.
 VERSION = "0.1.0"
-CORPUS_LIST_LIMIT = 100
+CORPUS_LIST_LIMIT = os.getenv("CORPUS_LIST_LIMIT")
 
 #helper functions for webscrape and AI summary
 async def scrape_website_text(url: str) -> str:
@@ -145,7 +153,8 @@ def corpus():
 
 def search_corpus(params: dict) -> dict:
     # Calculate the date one month ago
-    one_month_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    TIME_CUTOFF_DAYS = os.getenv("TIME_CUTOFF_DAYS")
+    one_month_ago = (datetime.now() - timedelta(days=TIME_CUTOFF_DAYS)).strftime("%Y-%m-%d")
     
     # Name is required for all queries
     query = {
