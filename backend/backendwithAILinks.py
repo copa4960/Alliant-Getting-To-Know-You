@@ -153,7 +153,7 @@ def corpus():
 
 def search_corpus(params: dict) -> dict:
     # Calculate the date one month ago
-    TIME_CUTOFF_DAYS = os.getenv("TIME_CUTOFF_DAYS")
+    TIME_CUTOFF_DAYS = int(os.getenv("TIME_CUTOFF_DAYS"))  # Default to 30 days if not set
     one_month_ago = (datetime.now() - timedelta(days=TIME_CUTOFF_DAYS)).strftime("%Y-%m-%d")
     
     # Name is required for all queries

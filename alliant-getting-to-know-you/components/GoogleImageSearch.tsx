@@ -18,30 +18,44 @@ interface GAPIImgSearchParams {
 }
 
 export default async function GoogleImageSearch({ name, company, username, url }: GoogleImageSearchProps) {
-
   let links: string[] = [];
-  await axios.get('http://localhost:8000/corpus/search', {
-    params: {
-      name: name,
-      company: company,
-      ...(username ? { username } : {}),
-      ...(url ? { url } : {}),
-      do_find: true
-    }
-  })
-  .then(res => {
-    res.data.res[0].images.forEach((item: any) => {
-      links.push(item.url);
+  
+  try {
+    const response = await axios.get('http://localhost:8000/corpus/search', {
+      params: {
+        name: name,
+        company: company,
+        ...(username ? { username } : {}),
+        ...(url ? { url } : {}),
+        do_find: true
+      }
     });
-  });
+
+    // Check if response has the expected structure
+    if (response.data && response.data.res && response.data.res[0] && response.data.res[0].images) {
+      response.data.res[0].images.forEach((item: any) => {
+        if (item && item.url) {
+          links.push(item.url);
+        }
+      });
+    } else {
+      console.error('Unexpected response structure:', response.data);
+    }
+  } catch (error) {
+    console.error('Error fetching images:', error);
+  }
 
   return (
     <div>
-      <div className="flex flex-wrap justify-center gap-4 mt-4">
-        {links.slice(0, 3).map((link, index) => (
-          <img key={index} src={link} width="200" className="rounded object-cover" />
-        ))}
-      </div>
+      {links.length > 0 ? (
+        <div className="flex flex-wrap justify-center gap-4 mt-4">
+          {links.slice(0, 3).map((link, index) => (
+            <img key={index} src={link} width="200" className="rounded object-cover" />
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">No images found</p>
+      )}
     </div>
   );
 }

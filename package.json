@@ -3,7 +3,10 @@
     "@types/node": "^22.13.10",
     "@types/puppeteer": "^5.4.7",
     "axios": "^1.8.3",
-    "puppeteer": "^24.1.1"
+    "next": "^15.3.1",
+    "puppeteer": "^24.1.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@types/selenium-webdriver": "^4.1.28"
