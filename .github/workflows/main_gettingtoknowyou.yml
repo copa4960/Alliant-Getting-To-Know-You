@@ -25,6 +25,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: "your-backend-app-name"  # Exact name of your Azure App Service
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./backend
           startup-command: "fastapi dev backendwithAILinks.py"
