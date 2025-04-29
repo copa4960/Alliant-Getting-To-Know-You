@@ -29,6 +29,11 @@ jobs:
         working-directory: ./alliant-getting-to-know-you
         run: npm run build
 
+      - name: Create deployment ZIP
+        run: |
+          # Exclude unnecessary files (e.g., node_modules, .git)
+          zip -r deploy.zip ./alliant-getting-to-know-you -x '.git/*' 'node_modules/*' '.github/*'
+
       - name: Check Azure deployment status
         timeout-minutes: 5
         run: |
@@ -56,4 +61,4 @@ jobs:
           app-name: GettingToKnowYou
           slot-name: Production
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./alliant-getting-to-know-you/
+          package: ./alliant-getting-to-know-you/deploy.zip
