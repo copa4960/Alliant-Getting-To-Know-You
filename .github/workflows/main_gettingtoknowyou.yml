@@ -21,6 +21,9 @@ jobs:
         working-directory: ./backend
         run: pip install -r requirements.txt
 
+      - name: Delay to avoid conflicts
+        run: sleep 120 
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
