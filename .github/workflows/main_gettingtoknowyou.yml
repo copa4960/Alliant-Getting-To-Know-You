@@ -1,64 +1,30 @@
-name: Build and deploy Node app to Azure Web App - GettingToKnowYou
+name: Deploy Backend
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
-    concurrency: 
-      group: deploy-${{ github.ref }}
-      cancel-in-progress: true  # Force cancel previous deployments
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '20'
-          cache: 'npm'  # Cache dependencies for faster installs
+          python-version: "3.11"
 
       - name: Install dependencies
-        working-directory: ./alliant-getting-to-know-you
-        run: npm ci --prefer-offline  # Clean install with cached modules
-
-      - name: Build the app
-        working-directory: ./alliant-getting-to-know-you
-        run: npm run build
-
-      - name: Create deployment ZIP
-        run: |
-          # Exclude unnecessary files (e.g., node_modules, .git)
-          zip -r deploy.zip ./alliant-getting-to-know-you -x '.git/*' 'node_modules/*' '.github/*'
-
-      - name: Check Azure deployment status
-        timeout-minutes: 5
-        run: |
-          # Check for active deployments using Azure CLI
-          az webapp deployment list-publishing-profiles \
-            --name GettingToKnowYou \
-            --resource-group <your-resource-group> \
-            --query "[?status == 'Running']" \
-            --output tsv
+        working-directory: ./backend
+        run: pip install -r requirements.txt
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: GettingToKnowYou
-          slot-name: Production
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./alliant-getting-to-know-you/.next
-        continue-on-error: true  # Important for retry logic
-        timeout-minutes: 10  # Increase timeout
-
-      - name: Retry deployment if failed
-        if: ${{ failure() }}
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: GettingToKnowYou
-          slot-name: Production
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: deploy.zip
+          app-name: "your-backend-app-name"  # Exact name of your Azure App Service
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: ./backend
+          startup-command: "fastapi dev backendwithAILinks.py"
