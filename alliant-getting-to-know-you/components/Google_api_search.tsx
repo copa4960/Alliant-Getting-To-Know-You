@@ -10,7 +10,7 @@ interface GoogleApiSearchProps {
 export default async function GoogleApiSearch({ name, company, username, url }: GoogleApiSearchProps) {
 
   let links: string[] = [];
-  await axios.get('http://localhost:8000/corpus/search', {
+  await axios.get('https://backendgtky-hegnffatf5a3gjdy.centralus-01.azurewebsites.net/corpus/search', {
     params: {
       name: name,
       company: company,

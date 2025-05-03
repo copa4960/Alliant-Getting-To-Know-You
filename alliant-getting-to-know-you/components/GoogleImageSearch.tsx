@@ -21,7 +21,7 @@ export default async function GoogleImageSearch({ name, company, username, url }
   let links: string[] = [];
   
   try {
-    const response = await axios.get('http://localhost:8000/corpus/search', {
+    const response = await axios.get('https://backendgtky-hegnffatf5a3gjdy.centralus-01.azurewebsites.net/corpus/search', {
       params: {
         name: name,
         company: company,

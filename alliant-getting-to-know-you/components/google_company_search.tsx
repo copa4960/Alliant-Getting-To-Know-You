@@ -53,7 +53,7 @@ export default async function GoogleCompanySearch({ query }: GoogleCompanySearch
     };
 
     // Fetch company page links from Google Custom Search
-    await axios.get('https://customsearch.googleapis.com/customsearch/v1', {
+    await axios.get('https://backendgtky-hegnffatf5a3gjdy.centralus-01.azurewebsites.net/customsearch/v1', {
         params: config
     })
         .then(res => {
