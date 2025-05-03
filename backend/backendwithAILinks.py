@@ -3,6 +3,7 @@
 from pymongo import MongoClient
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 import finder
 import re
@@ -24,6 +25,16 @@ from dotenv import load_dotenv
 import os
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://zealous-sky-03de78010.6.azurestaticapps.net"],  # Or specify your frontend domain(s)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 # Load environment variables
 load_dotenv()
